@@ -8,7 +8,7 @@ class Config(object):
 	sql_ip = '127.0.0.1'
 	sql_port = 3306
 	sql_user = 'root'
-	sql_pwq = '123456'
+	sql_pwq = '' # mac下没有密码
 	sql_db_name = 'game'
 
 	tb_player = 'player'
@@ -57,6 +57,8 @@ class SqlDataMgr(object):
 
 	#注册
 	def register(self, player_id, pwd):
+		if self._conn is None:
+			return
 		if not self._check_register(player_id):
 			print 'error player_id'
 			return
@@ -78,11 +80,9 @@ class SqlDataMgr(object):
 	def _check_not_repeat_id(self, player_id):
 		ret = self._search_db_by_id(player_id, Config.tb_user)
 		print '_check_not_repeat_id ', ret
-		return len(ret) == 0
+		return ret is None or len(ret) == 0
 
 	def _search_db_by_id(self, player_id, tb_nm):
-		if not self._conn:
-			return
 		_sql = 'select * from %s where id = %s'%(tb_nm, player_id)
 		print 'id_search ', _sql
 		self._cursor = self._conn.cursor()
@@ -93,8 +93,6 @@ class SqlDataMgr(object):
 		return ret
 
 	def _insert_db_user(self, player_id, pwd):
-		if not self._conn:
-			return
 		_sql = 'insert into user (id, pw) values (%s, %s)'%(player_id, pwd)
 		print 'user_insert', _sql
 		self._cursor = self._conn.cursor()
