@@ -3,21 +3,28 @@
 from core.sql.SqlDataMgr import SqlDataMgr
 from system.serializable import Serializable
 from data.sql_data.PlayerData import PlayerData
+from core.svr.ServNet import SevrNet
+
+svr = None
 
 def _svr_start():
-
-	SqlDataMgr().connect()
+	svr = SevrNet()
+	svr.init_svr_net()
+	svr.start_svr_net()
+	svr.end_svr_net()
+	#SqlDataMgr().connect()
 	#SqlDataMgr().register('aaaa', '123123123')
-	player = SqlDataMgr().check_sign('aaaa', '123123123')
-	player._score = "100"
-	player._name = '阿孙'
-	SqlDataMgr().save_player_info('aaaa' ,player)
+	#player = SqlDataMgr().check_sign('aaaa', '123123123')
+	#player._score = "100"
+	#player._name = '阿孙'
+	#SqlDataMgr().save_player_info('aaaa' ,player)
 	#ret = Serializable.encode_obj2json(PlayerData())
 	#print 'encode_json is ', ret
 	#Serializable.decode_json2obj(ret)
 
 def _svr_end():
-	SqlDataMgr().shutdown()
+	pass
+	#SqlDataMgr().shutdown()
 
 
 if __name__ == '__main__':

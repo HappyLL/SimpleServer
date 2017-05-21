@@ -85,7 +85,7 @@ class SqlDataMgr(object):
 		if not tmp_pwd == pwd:
 			print 'sign failed, db_pwd is %s pwd is %s', tmp_pwd, pwd
 			return False
-		return self._get_player_data(player_id)
+		return player_id, self._get_player_data(player_id)
 
 	# 存储玩家信息
 	def save_player_info(self, player_id, player_data):
