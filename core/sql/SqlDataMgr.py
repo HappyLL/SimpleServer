@@ -2,13 +2,15 @@
 
 from system.decorator.Singleton import singleton
 import mysql.connector
-import re
+from data.sql_data.PlayerData import PlayerData
+from system.serializable import Serializable
 
 class Config(object):
 	sql_ip = '127.0.0.1'
 	sql_port = 3306
 	sql_user = 'root'
-	sql_pwq = '' # mac下没有密码
+	# mac下没有密码
+	sql_pwq = '123456'
 	sql_db_name = 'game'
 
 	tb_player = 'player'
@@ -55,7 +57,7 @@ class SqlDataMgr(object):
 			self._conn = None
 			print 'close db success'
 
-	#注册
+	# 注册
 	def register(self, player_id, pwd):
 		if self._conn is None:
 			return
@@ -66,7 +68,28 @@ class SqlDataMgr(object):
 			print 'error word error'
 			return
 		self._insert_db_user(player_id, pwd)
+		self._create_player_data(player_id)
 
+	# 登录校验
+	def check_sign(self, player_id, pwd):
+		if self._conn is None:
+			return
+		if not self._check_wd_safe(player_id) or not self._check_wd_safe(pwd):
+			print 'player id or pwd id is not safe'
+			return False
+		ret = self._search_db_by_id(player_id, Config.tb_user)
+		if ret is None or len(ret) == 0:
+			print 'the user not exist'
+			return False
+		tmp_pwd = ret[0][1]
+		if not tmp_pwd == pwd:
+			print 'sign failed, db_pwd is %s pwd is %s', tmp_pwd, pwd
+			return False
+		return self._get_player_data(player_id)
+
+	# 存储玩家信息
+	def save_player_info(self, player_id, player_data):
+		self._update_db_player(player_id, player_data)
 
 	# 判断能否注册
 	def _check_register(self, player_id):
@@ -83,7 +106,7 @@ class SqlDataMgr(object):
 		return ret is None or len(ret) == 0
 
 	def _search_db_by_id(self, player_id, tb_nm):
-		_sql = 'select * from %s where id = %s'%(tb_nm, player_id)
+		_sql = "select * from %s where id = '%s'"%(tb_nm, player_id)
 		print 'id_search ', _sql
 		self._cursor = self._conn.cursor()
 		self._cursor.execute(_sql)
@@ -92,11 +115,41 @@ class SqlDataMgr(object):
 		self._cursor = None
 		return ret
 
-	def _insert_db_user(self, player_id, pwd):
-		_sql = 'insert into user (id, pw) values (%s, %s)'%(player_id, pwd)
-		print 'user_insert', _sql
+	def _upins_common(self, sql):
 		self._cursor = self._conn.cursor()
-		self._cursor.execute(_sql)
+		self._cursor.execute(sql)
 		self._conn.commit()
 		self._cursor.close()
 		self._cursor = None
+
+	def _insert_db_user(self, player_id, pwd):
+		_sql = 'insert into user (id, pw) values (\'%s\', \'%s\')'%(player_id, pwd)
+		print 'user_insert', _sql
+		self._upins_common(_sql)
+
+	def _insert_db_player(self, player_id, jstr):
+		_sql = 'insert into player (id, data) values (\'%s\', \'%s\')'%(player_id, jstr)
+		print 'player_insert', _sql
+		self._upins_common(_sql)
+
+	def _update_db_player(self, player_id, player_data):
+		if player_id is None or player_data is None:
+			raise ValueError('info is None')
+		jstr = str(Serializable.encode_obj2json(player_data))
+		_sql = "update player set data = '%s' where id = '%s'"%(jstr, player_id)
+		self._upins_common(_sql)
+
+	# 创建player_data(在注册成功之后)
+	def _create_player_data(self, player_id):
+		player_data = PlayerData()
+		jstr = str(Serializable.encode_obj2json(player_data))
+		self._insert_db_player(player_id, jstr)
+
+	# 登录成功后获取角色数据
+	def _get_player_data(self, player_id):
+		ret = self._search_db_by_id(player_id, Config.tb_player)
+		if ret is None or len(ret) == 0:
+			print 'can not read player data'
+			return None
+		play_data = Serializable.decode_json2obj(ret[0][1])
+		return play_data
