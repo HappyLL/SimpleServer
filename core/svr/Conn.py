@@ -4,6 +4,9 @@ import threading
 
 lock = threading.Lock()
 
+class Config(object):
+	pass
+
 # 连接对象
 class Conn(object):
 	def __init__(self, conn_id):
@@ -12,14 +15,16 @@ class Conn(object):
 		self._socket = None
 		self._address = None
 
-	def start_connect(self, sk, add):
+	def start_recv(self, sk, add):
 		self._socket = sk
 		self._address = add
-		self._thread = threading.Thread(target=self._tcp_link)
-		self._thread.start()
 
-	def end_connect(self):
-		self._socket.close()
+	def end_recv(self):
+		lock.acquire()
+		try:
+			self._socket.close()
+		finally:
+			lock.release()
 		self._address = None
 
 	@property
@@ -30,9 +35,14 @@ class Conn(object):
 	def used(self, value):
 		self._flag_used = value
 
-	def _tcp_link(self):
+
+	def _begin_recv_msg(self):
+		td = threading.Thread(target=self._cb_recv_msg)
+		td.start()
+
+	def _cb_recv_msg(self):
 		lock.acquire()
 		try:
-
+			self._socket.recv()
 		finally:
 			lock.release()
