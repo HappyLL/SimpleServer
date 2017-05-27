@@ -27,6 +27,7 @@ class SevrNet(object):
 		self._socket.listen(Config.conn_max_num)
 
 	def start_svr_net(self):
+		print 'svr_state, start_svr_net'
 		if self._socket is None:
 			print 'the socket is none'
 			return
@@ -39,6 +40,7 @@ class SevrNet(object):
 		self._begin_accept()
 
 	def end_svr_net(self):
+		print 'svr_state, end_svr_net'
 		if self._socket is None:
 			print 'the socket is none'
 			return

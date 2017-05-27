@@ -25,7 +25,7 @@ class Conn(object):
 			self._socket.close()
 		finally:
 			lock.release()
-		self._address = None
+			self._address = None
 
 	@property
 	def used(self):
@@ -43,6 +43,8 @@ class Conn(object):
 	def _cb_recv_msg(self):
 		lock.acquire()
 		try:
-			self._socket.recv()
+			dt = self._socket.recv(1024)
+			print 'recv_msg ', dt
 		finally:
 			lock.release()
+			self._begin_recv_msg()

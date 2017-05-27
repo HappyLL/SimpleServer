@@ -11,7 +11,6 @@ def _svr_start():
 	svr = SevrNet()
 	svr.init_svr_net()
 	svr.start_svr_net()
-	svr.end_svr_net()
 	#SqlDataMgr().connect()
 	#SqlDataMgr().register('aaaa', '123123123')
 	#player = SqlDataMgr().check_sign('aaaa', '123123123')
@@ -21,6 +20,11 @@ def _svr_start():
 	#ret = Serializable.encode_obj2json(PlayerData())
 	#print 'encode_json is ', ret
 	#Serializable.decode_json2obj(ret)
+	while True:
+		cmd = raw_input()
+		if cmd == 'exit':
+			break
+	svr.end_svr_net()
 
 def _svr_end():
 	pass
