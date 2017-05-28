@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import threading
-
-lock = threading.Lock()
-
 class Config(object):
 	pass
 
@@ -14,6 +10,7 @@ class Conn(object):
 		self._flag_writeable = False
 		self._conn_id = conn_id
 		self._socket = None
+		self._buffcount = 0
 
 	def recv_dat(self, dat):
 		pass

@@ -2,10 +2,7 @@
 
 from core.svr.Conn import Conn
 import socket
-import threading
 import select
-
-lock = threading.Lock()
 
 class Config(object):
 	default_ip = '127.0.0.1'
