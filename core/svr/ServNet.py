@@ -21,25 +21,25 @@ class SevrNet(object):
 			return
 		self._init_data()
 		self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self._socket.bind((ip, port))
 		self._socket.listen(Config.conn_max_num)
-		self._socket.setblocking(False)
+		self._socket.setblocking(0)
 		self._read_lists.append(self._socket)
-
-	def start_svr_net(self):
-		if self._svr_state == 'running':
-			return
-		self._svr_state = 'running'
-		while True:
-			read_lists, write_lists, exec_lists = select.select(self._read_lists, self._write_lists, self._exec_lists)
-			if self._do_exec_sk(exec_lists):
-				break
-			self._do_read_sk(read_lists)
-			self._do_write_sk(write_lists)
 
 	def end_svr_net(self):
 		self._close_all_conn()
 		self._clear_data()
+
+	def tick(self):
+		self._process()
+
+	def _process(self):
+		read_lists, write_lists, exec_lists = select.select(self._read_lists, self._write_lists, self._exec_lists, 0)
+		if self._do_exec_sk(exec_lists):
+			return
+		self._do_read_sk(read_lists)
+		self._do_write_sk(write_lists)
 
 	def _init_data(self):
 		self._sk2conn = {}
@@ -49,7 +49,6 @@ class SevrNet(object):
 		self._read_lists = []
 		self._write_lists = []
 		self._exec_lists = []
-		self._svr_state = 'close'
 
 	def _clear_data(self):
 		self._sk2conn = None
@@ -59,7 +58,6 @@ class SevrNet(object):
 		self._read_lists = None
 		self._write_lists = None
 		self._exec_lists = None
-		self._svr_state = 'close'
 
 	def _do_exec_sk(self, exec_lists):
 		for exec_sk in exec_lists:
@@ -131,6 +129,8 @@ class SevrNet(object):
 		sk.close()
 
 	def _close_all_conn(self):
+		if self._sk2conn is None:
+			return
 		for sk in self._sk2conn:
 			self._close_conn(sk)
 		self._socket.close()
