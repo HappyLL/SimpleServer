@@ -11,21 +11,15 @@ class Config(object):
 class Conn(object):
 	def __init__(self, conn_id):
 		self._flag_used = False
+		self._flag_writeable = False
 		self._conn_id = conn_id
 		self._socket = None
-		self._address = None
 
-	def start_recv(self, sk, add):
-		self._socket = sk
-		self._address = add
+	def recv_dat(self, dat):
+		pass
 
-	def end_recv(self):
-		lock.acquire()
-		try:
-			self._socket.close()
-		finally:
-			lock.release()
-			self._address = None
+	def send_dat(self):
+		pass
 
 	@property
 	def used(self):
@@ -35,16 +29,23 @@ class Conn(object):
 	def used(self, value):
 		self._flag_used = value
 
+	@property
+	def writeable(self):
+		return self._flag_writeable
 
-	def _begin_recv_msg(self):
-		td = threading.Thread(target=self._cb_recv_msg)
-		td.start()
+	@writeable.setter
+	def writeable(self, value):
+		self._flag_writeable =value
 
-	def _cb_recv_msg(self):
-		lock.acquire()
-		try:
-			dt = self._socket.recv(1024)
-			print 'recv_msg ', dt
-		finally:
-			lock.release()
-			self._begin_recv_msg()
+	@property
+	def connsk(self):
+		return self._socket
+
+	@connsk.setter
+	def connsk(self, value):
+		self._socket = value
+
+	def close_conn(self):
+		self._socket = None
+		self._flag_writeable = False
+		self.used = False

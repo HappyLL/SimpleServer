@@ -4,6 +4,8 @@ from core.sql.SqlDataMgr import SqlDataMgr
 from system.serializable import Serializable
 from data.sql_data.PlayerData import PlayerData
 from core.svr.ServNet import SevrNet
+from test.TestSelect import SelectSvr
+
 
 svr = None
 
@@ -20,11 +22,11 @@ def _svr_start():
 	#ret = Serializable.encode_obj2json(PlayerData())
 	#print 'encode_json is ', ret
 	#Serializable.decode_json2obj(ret)
-	while True:
-		cmd = raw_input()
-		if cmd == 'exit':
-			break
-	svr.end_svr_net()
+	# while True:
+	# 	cmd = raw_input()
+	# 	if cmd == 'exit':
+	# 		break
+	# svr.end_svr_net()
 
 def _svr_end():
 	pass
@@ -33,4 +35,7 @@ def _svr_end():
 
 if __name__ == '__main__':
 	_svr_start()
-	_svr_end()
+	#_svr_end()
+	#SelectSvr.start_svr()
+	# select_svr = SelectSvr()
+	# select_svr.start_svr()
