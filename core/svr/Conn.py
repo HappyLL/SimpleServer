@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from system.proto import Proto
+
 class Config(object):
 	pass
 
@@ -10,13 +12,26 @@ class Conn(object):
 		self._flag_writeable = False
 		self._conn_id = conn_id
 		self._socket = None
-		self._buffcount = 0
+		self._recvbuff = ''
+		self._sendbuff = ''
 
+	def get_proto(self):
+		ret, next_buff = Proto.decode_buffer(self._recvbuff, len(self._recvbuff))
+		self._recvbuff = next_buff
+		return ret
+
+	# dat是二进制流
 	def recv_dat(self, dat):
-		pass
+		self._recvbuff += dat
 
-	def send_dat(self):
-		pass
+	# dat二进制流
+	def send_dat(self, dat):
+		self._sendbuff += dat
+		try:
+			send_sz = self._socket.send(self._sendbuff)
+			self._sendbuff = self._sendbuff[send_sz:]
+		except Exception ,e:
+			print 'exception is ', e
 
 	@property
 	def used(self):
@@ -46,3 +61,5 @@ class Conn(object):
 		self._socket = None
 		self._flag_writeable = False
 		self.used = False
+		self._recvbuff = ''
+		self._sendbuff = ''
