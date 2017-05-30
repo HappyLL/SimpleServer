@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from system.proto import Proto
+import time
 
 class Config(object):
 	pass
@@ -14,6 +15,7 @@ class Conn(object):
 		self._socket = None
 		self._recvbuff = ''
 		self._sendbuff = ''
+		self._active_tm = time.time()
 
 	def get_proto(self):
 		ret, next_buff = Proto.decode_buffer(self._recvbuff, len(self._recvbuff))
@@ -23,6 +25,7 @@ class Conn(object):
 	# dat是二进制流
 	def recv_dat(self, dat):
 		self._recvbuff += dat
+		self._active_tm = time.time()
 
 	# dat二进制流
 	def send_dat(self, dat):
@@ -56,6 +59,15 @@ class Conn(object):
 	@connsk.setter
 	def connsk(self, value):
 		self._socket = value
+
+	@property
+	def activetm(self):
+		return self._active_tm
+
+	@activetm.setter
+	def activetm(self, value):
+		self._active_tm = value
+
 
 	def close_conn(self):
 		self._socket = None

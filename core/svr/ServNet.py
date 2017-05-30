@@ -3,12 +3,15 @@
 from core.svr.Conn import Conn
 import socket
 import select
+import time
 
 class Config(object):
 	default_ip = '127.0.0.1'
 	default_port = 8888
 	conn_max_num = 200
 	data_buffer = 1024
+	# 连接最大实现
+	conn_out_tm = 30
 
 class SevrNet(object):
 
@@ -31,17 +34,48 @@ class SevrNet(object):
 		self._close_all_conn()
 		self._clear_data()
 
+	# 服务器步骤: 接收数据 测试连接 检测异常
 	def tick(self):
 		self._process()
-		if len(self._conn) > 0:
-			self._conn[0].get_proto()
+		self._heat_beat()
+		self._do_exec()
 
+	# 处理连接
 	def _process(self):
 		read_lists, write_lists, exec_lists = select.select(self._read_lists, self._write_lists, self._exec_lists, 0)
-		if self._do_exec_sk(exec_lists):
-			return
+		self._do_exec_sk(exec_lists)
 		self._do_read_sk(read_lists)
 		self._do_write_sk(write_lists)
+
+	# 处理心跳
+	def _heat_beat(self):
+		now_tm = time.time()
+		for index in range(len(self._conn)):
+			conn = self._conn[index]
+			if not conn.used:
+				continue
+			delta_tm = now_tm - conn.activetm
+			# 超过最大时限默认断开
+			if delta_tm > Config.conn_out_tm:
+				print 'the index conn is disconnect', conn
+				sk = conn.connsk
+				self._clear_sk_lists.append(sk)
+
+	# 处理异常sk
+	def _do_exec(self):
+		ln = len(self._clear_sk_lists)
+		for index in range(ln):
+			sk = self._clear_sk_lists[index]
+			self._close_conn(sk)
+			if sk in self._write_lists:
+				self._write_lists.remove(sk)
+			if sk in self._read_lists:
+				self._read_lists.remove(sk)
+			if sk in self._exec_lists:
+				self._exec_lists.remove(sk)
+
+		if ln > 0:
+			self._clear_sk_lists = []
 
 	def _init_data(self):
 		self._sk2conn = {}
@@ -51,6 +85,7 @@ class SevrNet(object):
 		self._read_lists = []
 		self._write_lists = []
 		self._exec_lists = []
+		self._clear_sk_lists = []
 
 	def _clear_data(self):
 		self._sk2conn = None
@@ -60,18 +95,16 @@ class SevrNet(object):
 		self._read_lists = None
 		self._write_lists = None
 		self._exec_lists = None
+		self._clear_sk_lists = None
 
 	def _do_exec_sk(self, exec_lists):
+		if len(exec_lists) > 0:
+			print 'exe_lists ', exec_lists
 		for exec_sk in exec_lists:
 			if exec_sk == self._socket:
 				self.end_svr_net()
-				return True
-			if exec_sk in self._read_lists:
-				self._read_lists.remove(exec_sk)
-			if exec_sk in self._write_lists:
-				self._write_lists.remove(exec_sk)
-			self._close_conn(exec_sk)
-			del self._sk2conn[exec_sk]
+				raise ValueError('svr net socket exception')
+		self._clear_sk_lists += exec_lists
 
 	def _do_read_sk(self, read_lists):
 		for read_sk in read_lists:
@@ -81,6 +114,7 @@ class SevrNet(object):
 				print 'new client connected address is ', address
 				self._read_lists.append(sk)
 				self._write_lists.append(sk)
+				self._exec_lists.append(sk)
 				sk.setblocking(False)
 				conn = self._new_conn()
 				self._sk2conn[sk] = conn
@@ -100,8 +134,7 @@ class SevrNet(object):
 						conn.recv_dat(dat)
 				except Exception, e:
 					print 'exception is', e
-					self._close_conn(read_sk)
-					del self._sk2conn[read_sk]
+					self._clear_sk_lists.append(read_sk)
 
 	def _do_write_sk(self, write_lists):
 		for write_sk in write_lists:
@@ -137,3 +170,8 @@ class SevrNet(object):
 		for sk in self._sk2conn:
 			self._close_conn(sk)
 		self._socket.close()
+
+	def _dis_connect_sk(self, sk):
+		self._close_conn(sk)
+		del self._sk2conn[sk]
+		self._read_lists.remove(sk)

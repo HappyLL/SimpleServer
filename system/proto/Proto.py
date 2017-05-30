@@ -5,9 +5,9 @@ import struct
 class Config(object):
 	# 协议长
 	NET_HEADER_LEN = 4
-	NET_HEAD_LENGTH_FORMAT = '<I'
+	NET_HEAD_LENGTH_FORMAT = '=I'
 
-def encode_proto(buffer, buffer_len):
+def encode_buffer(buffer, buffer_len):
 	pass
 
 
