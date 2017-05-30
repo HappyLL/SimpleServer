@@ -33,6 +33,8 @@ class SevrNet(object):
 
 	def tick(self):
 		self._process()
+		if len(self._conn) > 0:
+			self._conn[0].get_proto()
 
 	def _process(self):
 		read_lists, write_lists, exec_lists = select.select(self._read_lists, self._write_lists, self._exec_lists, 0)
@@ -119,6 +121,7 @@ class SevrNet(object):
 			if not self._conn[index].used:
 				return self._conn[index]
 		new_conn = Conn(self._conn_num)
+		self._conn.append(new_conn)
 		return new_conn
 
 	def _close_conn(self, sk):

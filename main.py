@@ -3,7 +3,7 @@ import time
 from core.Server import Server
 
 svr = Server()
-frame_tm = 1
+frame_tm = 0.02
 
 if __name__ == '__main__':
 	svr.svr_start()
