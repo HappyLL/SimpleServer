@@ -75,16 +75,16 @@ class Header(object):
 			return bin_fmt
 		ret = []
 		for i in range(cnt):
-			ind = string.index('%', )
-			st = ed
+			ind = string.index(bin_fmt, '%')
 			ed = ind
-			wsz = struct.calcsize(Config.HEADER_FORMAT + bin_fmt[st:ed])
+			wsz = struct.calcsize(Config.HEADER_FORMAT + bin_fmt[0:ed])
 			if ln_dat < wsz:
 				raise ValueError('_get_decode_bin_format error')
 			wln_st = wsz - offest
-			tu_str = struct.unpack(fmt_ln, dat[wln_st, wsz])
+			tu_str = struct.unpack(fmt_ln, dat[wln_st:wsz])
 			ret.append(tu_str[0])
 			ed = ed + len('%ds')
+			wsz = wsz + tu_str[0]
 			bin_fmt = bin_fmt[ed:]
 			dat = dat[wsz:]
 		return self._bfmt%(tuple(ret))
@@ -100,18 +100,24 @@ class Header(object):
 				last_nam = val_nam
 				continue
 			val = self.__getattr__(val_nam)
-			ret.append(val)
 			if not last_nam:
-				str_len_list.append(len(val_nam))
+				ln_nm = len(val)
+				str_len_list.append(ln_nm)
+				ret.append(ln_nm)
+			ret.append(val)
 			last_nam = val_nam
 		return bin_fmt%tuple(str_len_list), ret
 
 	def _decode_val(self, dat):
 		bin_format = self._get_decode_bin_format(dat)
 		de_vals = struct.unpack(Config.HEADER_FORMAT + bin_format, dat)
+		print 'header de_val is ',de_vals
 		ln_nm = len(self._valnm_list)
-		if ln_nm != de_vals:
+		if ln_nm != len(de_vals):
 			raise ValueError('decode val error len not equal')
 
 		for index in range(ln_nm):
+			if not self._valnm_list[index]:
+				continue
 			self.__setattr__(self._valnm_list[index], de_vals[index])
+
