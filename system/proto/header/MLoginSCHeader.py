@@ -2,9 +2,9 @@
 
 from system.proto.Header import Header
 
-class MLoginCSHeader(Header):
+class MLoginSCHeader(Header):
 	def __init__(self, hid):
-		super(MLoginCSHeader, self).__init__(hid)
+		super(MLoginSCHeader, self).__init__(hid)
 		self._add_val('name', '131123123124124', 's')
 		self._add_val('id', 1, 'i')
 		self._add_val('height', '182', 's')
@@ -15,7 +15,7 @@ class MLoginCSHeader(Header):
 
 
 if __name__ == '__main__':
-	login = MLoginCSHeader(0)
+	login = MLoginSCHeader(0)
 	login.height = '189'
 	ret = login.header_encode()
 	print 'encode_ret ', ret
