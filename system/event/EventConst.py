@@ -1,1 +1,4 @@
 # -*- coding: utf-8 -*-
+
+EID_CREATE_NEW_PLAYER = 1
+EID_DESTROY_NEW_PLAYER = 2

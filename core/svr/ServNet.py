@@ -34,11 +34,12 @@ class SevrNet(object):
 		self._close_all_conn()
 		self._clear_data()
 
-	# 服务器步骤: 接收数据 测试连接 检测异常
+	# 服务器步骤: 接收数据 检测异常 测试连接
 	def tick(self):
 		self._process()
-		self._heat_beat()
+		#self._heat_beat()
 		self._do_exec()
+		self._conns_tick()
 
 	# 处理连接
 	def _process(self):
@@ -76,6 +77,11 @@ class SevrNet(object):
 
 		if ln > 0:
 			self._clear_sk_lists = []
+
+	def _conns_tick(self):
+		for conn in self._conn:
+			if conn.used:
+				conn.tick()
 
 	def _init_data(self):
 		self._sk2conn = {}
@@ -120,6 +126,7 @@ class SevrNet(object):
 				self._sk2conn[sk] = conn
 				conn.used = True
 				conn.connsk = sk
+				conn.is_new_player = True
 			# 表示当前其他sk有数据
 			else:
 				try:
@@ -150,7 +157,7 @@ class SevrNet(object):
 			print "the connector is up to max_num"
 			return
 		conn_len = len(self._conn)
-		for index in range(conn_len):
+		for index in xrange(conn_len):
 			if not self._conn[index].used:
 				return self._conn[index]
 		new_conn = Conn(self._conn_num)

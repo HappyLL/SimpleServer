@@ -6,10 +6,11 @@ class Config(object):
 	# 协议长
 	NET_HEADER_LEN = 4
 	NET_HEAD_LENGTH_FORMAT = '=I'
+	NET_HID_LENGTH = '=H'
 
 def encode_buffer(buffer, buffer_len):
-	pass
-
+	header_buffer = struct.pack(Config.NET_HEAD_LENGTH_FORMAT, buffer_len)
+	return header_buffer + buffer
 
 # 获取一个完整的proto
 def decode_buffer(buffer, buffer_len):
@@ -23,11 +24,16 @@ def decode_buffer(buffer, buffer_len):
 		raise ValueError('proto is error exc is', e)
 	# 取完整的
 	if proto_len > (buffer_len - Config.NET_HEADER_LEN):
-		print 'chai bao st proto len is %s buffer_len is %s'%(proto_len, buffer_len)
+		#print 'chai bao st proto len is %s buffer_len is %s'%(proto_len, buffer_len)
 		return None, buffer
+	print 'proto:len is ',proto_len
 	st = Config.NET_HEADER_LEN
-	ed = Config.NET_HEADER_LEN + proto_len
-	ret = buffer[st:ed]
+	ed = proto_len
+	wsz = struct.calcsize(Config.NET_HID_LENGTH)
+	hbuffer = buffer[st:wsz + st]
+	hid = struct.unpack(Config.NET_HID_LENGTH, hbuffer)[0]
+	ret = buffer[st:ed + st]
 	buffer = buffer[ed:]
 	print 'proto ret is ', ret
-	return ret, buffer
+	print 'header len is ', len(ret)
+	return (hid, ret), buffer

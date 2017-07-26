@@ -2,6 +2,9 @@
 
 from system.proto import Proto
 import time
+from system.event import EventDispatcher
+from system.event import EventConst
+#from system.event import NetEventDispatcher
 
 class Config(object):
 	pass
@@ -15,6 +18,7 @@ class Conn(object):
 		self._socket = None
 		self._recvbuff = ''
 		self._sendbuff = ''
+		self._is_new_player = False
 		self._active_tm = time.time()
 
 	def get_proto(self):
@@ -68,6 +72,15 @@ class Conn(object):
 	def activetm(self, value):
 		self._active_tm = value
 
+	@property
+	def is_new_player(self):
+		return self._is_new_player
+
+	@is_new_player.setter
+	def is_new_player(self, value):
+		self._is_new_player = value
+		if value is True:
+			EventDispatcher.dispatch_event(EventConst.EID_CREATE_NEW_PLAYER, self)
 
 	def close_conn(self):
 		self._socket = None
@@ -75,3 +88,16 @@ class Conn(object):
 		self.used = False
 		self._recvbuff = ''
 		self._sendbuff = ''
+		self._is_new_player = False
+		EventDispatcher.dispatch_event(EventConst.EID_DESTROY_NEW_PLAYER, self)
+
+	def tick(self):
+		self._handle_msg()
+
+	def _handle_msg(self):
+		ret = self.get_proto()
+		if not ret or len(ret) == 0:
+			return
+		hid = ret[0]
+		buff = ret[1]
+		EventDispatcher.dispatch_event(hid, buff)

@@ -2,6 +2,7 @@
 
 from system.proto.Header import Header
 
+
 class MLoginSCHeader(Header):
 	def __init__(self, hid):
 		super(MLoginSCHeader, self).__init__(hid)
@@ -10,8 +11,6 @@ class MLoginSCHeader(Header):
 		self._add_val('height', '182', 's')
 		self._add_val('sex', 'male', 's')
 		self._add_val('age', 18, 'i')
-
-
 
 
 if __name__ == '__main__':

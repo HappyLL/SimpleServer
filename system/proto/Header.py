@@ -110,6 +110,7 @@ class Header(object):
 
 	def _decode_val(self, dat):
 		bin_format = self._get_decode_bin_format(dat)
+		print 'bin_format is ', bin_format
 		de_vals = struct.unpack(Config.HEADER_FORMAT + bin_format, dat)
 		print 'header de_val is ',de_vals
 		ln_nm = len(self._valnm_list)
