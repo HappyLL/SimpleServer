@@ -36,6 +36,7 @@ class Conn(object):
 		self._sendbuff += dat
 		try:
 			send_sz = self._socket.send(self._sendbuff)
+			print 'send size is ', send_sz
 			self._sendbuff = self._sendbuff[send_sz:]
 		except Exception ,e:
 			print 'exception is ', e

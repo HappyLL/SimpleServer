@@ -133,7 +133,7 @@ class SevrNet(object):
 					dat = read_sk.recv(Config.data_buffer)
 					if dat is None or len(dat) == 0:
 						continue
-					print 'dat is ', dat
+					#print 'dat is ', dat
 					conn = self._sk2conn.get(read_sk)
 					if conn is None:
 						print 'the conn is none'

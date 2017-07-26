@@ -23,10 +23,11 @@ def decode_buffer(buffer, buffer_len):
 	except Exception, e:
 		raise ValueError('proto is error exc is', e)
 	# 取完整的
-	if proto_len > (buffer_len - Config.NET_HEADER_LEN):
+	if proto_len > (buffer_len - Config.NET_HEADER_LEN) or proto_len == 0:
 		#print 'chai bao st proto len is %s buffer_len is %s'%(proto_len, buffer_len)
 		return None, buffer
-	print 'proto:len is ',proto_len
+	print 'buffer:len is ', buffer_len
+	print 'proto:len is ', proto_len
 	st = Config.NET_HEADER_LEN
 	ed = proto_len
 	wsz = struct.calcsize(Config.NET_HID_LENGTH)

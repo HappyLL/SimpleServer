@@ -17,6 +17,12 @@ class Player():
 		login = MLoginSCHeader(HeaderConst.HEADER_LOGIN_MSG_ID)
 		login.header_decode(bytes)
 		print login
+		#test
+		s = ''
+		for index in xrange(10000):
+			s += 'i'
+		import struct
+		self._conn.send_dat(struct.pack('=I10000s', 10000, s))
 
 	def cancel_msg(self):
 		EventDispatcher.remove_event_listener(self)
