@@ -13,6 +13,7 @@ def add_event_listener(recv_obj, event_id, listener):
 		print '[EventDispathcer][add_event_listener] exist'
 		return
 	event_listener[event_id][recv_obj].append(listener)
+	#print 'event_listener is ',event_listener
 
 
 def add_notify_event_listener(notify, recv_obj, event_id, listener):
@@ -25,7 +26,7 @@ def add_notify_event_listener(notify, recv_obj, event_id, listener):
 	if listener in event_notify_listener[event_id][notify][recv_obj]:
 		print '[EventDispathcer][add_notify_event_listener] exist'
 		return
-	print '[EventDispathcer] add_notify_event_listener is ', event_notify_listener
+	#print '[EventDispathcer] add_notify_event_listener is ', event_notify_listener
 	event_notify_listener[event_id][notify][recv_obj].append(listener)
 
 def remove_event_listener(recv_obj):

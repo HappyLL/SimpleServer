@@ -83,6 +83,10 @@ class Conn(object):
 		if value is True:
 			EventDispatcher.dispatch_event(EventConst.EID_CREATE_NEW_PLAYER, None, self)
 
+	@property
+	def conn_id(self):
+		return self._conn_id
+
 	def close_conn(self):
 		self._socket = None
 		self._flag_writeable = False

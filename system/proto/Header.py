@@ -74,7 +74,7 @@ class Header(object):
 		if cnt == 0:
 			return bin_fmt
 		ret = []
-		for i in range(cnt):
+		for i in xrange(cnt):
 			ind = string.index(bin_fmt, '%')
 			ed = ind
 			wsz = struct.calcsize(Config.HEADER_FORMAT + bin_fmt[0:ed])
@@ -93,8 +93,11 @@ class Header(object):
 		ret = []
 		bin_fmt = self._bfmt
 		str_len_list = []
-		last_nam = None
-		for index in range(len(self._valnm_list)):
+		len_vals = len(self._valnm_list)
+		if len_vals == 0:
+			return self._bfmt
+		last_nam = self._valnm_list[0]
+		for index in xrange(len_vals):
 			val_nam = self._valnm_list[index]
 			if not val_nam:
 				last_nam = val_nam
