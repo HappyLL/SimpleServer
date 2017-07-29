@@ -168,6 +168,7 @@ class SevrNet(object):
 		conn = self._sk2conn.get(sk)
 		if not conn:
 			return
+		print 'close conn is ', conn
 		conn.close_conn()
 		sk.close()
 

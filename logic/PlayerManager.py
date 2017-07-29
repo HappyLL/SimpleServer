@@ -23,6 +23,7 @@ class PlayerManager():
 	def _destory_new_player(self, conn):
 		if conn not in self.players:
 			return
+		self.players[conn].destroy()
 		del self.players[conn]
 
 	def tick(self):

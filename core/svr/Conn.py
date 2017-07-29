@@ -81,7 +81,7 @@ class Conn(object):
 	def is_new_player(self, value):
 		self._is_new_player = value
 		if value is True:
-			EventDispatcher.dispatch_event(EventConst.EID_CREATE_NEW_PLAYER, self)
+			EventDispatcher.dispatch_event(EventConst.EID_CREATE_NEW_PLAYER, None, self)
 
 	def close_conn(self):
 		self._socket = None
@@ -90,7 +90,7 @@ class Conn(object):
 		self._recvbuff = ''
 		self._sendbuff = ''
 		self._is_new_player = False
-		EventDispatcher.dispatch_event(EventConst.EID_DESTROY_NEW_PLAYER, self)
+		EventDispatcher.dispatch_event(EventConst.EID_DESTROY_NEW_PLAYER, None, self)
 
 	def tick(self):
 		self._handle_msg()
@@ -101,4 +101,4 @@ class Conn(object):
 			return
 		hid = ret[0]
 		buff = ret[1]
-		EventDispatcher.dispatch_event(hid, buff)
+		EventDispatcher.dispatch_event(hid, self, buff)

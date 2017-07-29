@@ -10,7 +10,7 @@ class Player():
 		self.register_msg()
 
 	def register_msg(self):
-		EventDispatcher.add_event_listener(self, HeaderConst.HEADER_LOGIN_MSG_ID, self._login_success)
+		EventDispatcher.add_notify_event_listener(self._conn, self, HeaderConst.HEADER_LOGIN_MSG_ID, self._login_success)
 
 	def _login_success(self, bytes):
 		from system.proto.header.MLoginSCHeader import MLoginSCHeader
