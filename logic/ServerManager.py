@@ -43,4 +43,13 @@ class ServerManger(object):
 	def send_proto_target_to_all(self, player_conn, bytes):
 		for conn in self.conns:
 			if conn != player_conn:
-				conn.send_dat(bytes)
+				send_bytes = bytes[:]
+				print 'send success all is ',conn
+				from system.proto.header.MLoginSCHeader import MLoginSCHeader
+				from system.proto import HeaderConst
+				login = MLoginSCHeader(HeaderConst.HEADER_LOGIN_MSG_ID)
+				from system.proto import Proto
+				ret1, ret = Proto.decode_buffer(bytes, len(bytes))
+				login.header_decode(ret1[1])
+				print 'login_id is ', login.player_id
+				conn.send_dat(send_bytes)

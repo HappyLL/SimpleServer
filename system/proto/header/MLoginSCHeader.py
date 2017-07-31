@@ -14,7 +14,9 @@ class MLoginSCHeader(Header):
 if __name__ == '__main__':
 	login = MLoginSCHeader(0)
 	ret = login.header_encode()
-	print 'encode_ret ', ret
-
-	ret = login.header_decode(ret)
-	print  login.height
+	from system.proto import Proto
+	bytes_len = len(ret)
+	encode_bytes = Proto.encode_buffer(ret, bytes_len)
+	decode_bytes, _ = Proto.decode_buffer(encode_bytes, len(encode_bytes))
+	ret = login.header_decode(decode_bytes[1])
+	print login.player_id

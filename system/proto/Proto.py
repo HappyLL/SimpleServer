@@ -34,7 +34,7 @@ def decode_buffer(buffer, buffer_len):
 	hbuffer = buffer[st:wsz + st]
 	hid = struct.unpack(Config.NET_HID_LENGTH, hbuffer)[0]
 	ret = buffer[st:ed + st]
-	buffer = buffer[ed:]
+	buffer = buffer[ed + Config.NET_HEADER_LEN:]
 	print 'proto ret is ', ret
 	print 'header len is ', len(ret)
 	return (hid, ret), buffer

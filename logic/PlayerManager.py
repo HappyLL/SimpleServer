@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from system.event import EventDispatcher
 from system.event import EventConst
+from system.decorator.Singleton import singleton
 
-class PlayerManager():
+@singleton
+class PlayerManager(object):
 	def __init__(self):
 		self.players = {}
 		self.dirty_tick = True
@@ -18,7 +20,9 @@ class PlayerManager():
 	def _create_new_player(self, conn):
 		print '_create_new_player ',conn
 		from logic.Player import Player
-		self.players[conn] = (Player(conn))
+		player = Player(conn)
+		self.players[conn] = player
+		player.login_success()
 
 	def _destory_new_player(self, conn):
 		if conn not in self.players:
@@ -38,3 +42,6 @@ class PlayerManager():
 			player.destroy()
 		self.players = None
 		self.dirty_tick = False
+
+	def get_all_players_info(self):
+		return self.players
