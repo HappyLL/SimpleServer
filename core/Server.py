@@ -31,3 +31,4 @@ class Server(object):
 	def tick(self):
 		self._netSvr.tick()
 		self.game_logic.tick()
+		ServerManger().tick()

@@ -38,3 +38,9 @@ def decode_buffer(buffer, buffer_len):
 	print 'proto ret is ', ret
 	print 'header len is ', len(ret)
 	return (hid, ret), buffer
+
+def encode_header(header):
+	if header is None:
+		return
+	encode_bin = header.header_encode()
+	return encode_buffer(encode_bin, len(encode_bin))

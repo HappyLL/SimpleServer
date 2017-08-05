@@ -22,8 +22,7 @@ class Player(object):
 		self._v_y = 0
 
 	def register_msg(self):
-		pass
-		#EventDispatcher.add_notify_event_listener(self._conn, self, HeaderConst.HEADER_LOGIN_MSG_ID, self._login_success)
+		EventDispatcher.add_notify_event_listener(self._conn, self, HeaderConst.HEADER_POS_MSG_ID, self._pos_changed)
 
 	def login_success(self):
 		from system.proto.header.MLoginSCHeader import MLoginSCHeader
@@ -76,3 +75,23 @@ class Player(object):
 	@property
 	def player_id(self):
 		return self._player_id
+
+	def _pos_changed(self, bytes):
+		from system.proto.header.MPosSCHeader import MPosSCHeader
+		pos_header = MPosSCHeader(HeaderConst.HEADER_LOGIN_MSG_ID)
+		pos_header.header_decode(bytes)
+		if pos_header.player_id != self.player_id:
+			print '[Player][_pos_changed] player id not equal %d, %d'%(pos_header.player_id, self.player_id)
+			return
+		self._pos_x = pos_header.pos_x
+		self._pos_y = pos_header.pos_y
+		self._v_x = pos_header.v_x
+		self._v_y = pos_header.v_y
+		info = {
+			'player_id': self.player_id,
+			'pos_x': self.pos_x,
+			'pos_y': self.pos_y,
+			'v_x': self._v_x,
+			'v_y': self._v_y
+		}
+		ServerManger().push_data(info)

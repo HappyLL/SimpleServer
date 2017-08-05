@@ -3,15 +3,22 @@
 # 处理协议发给谁
 
 from core.sync.NoSync import NoSync
+from core.sync import SyncConst
 from system.decorator.Singleton import singleton
 from system.event import EventDispatcher
 from system.event import EventConst
-
+import Queue
 @singleton
 class ServerManger(object):
 	def __init__(self):
 		self.conns = []
+		self.sync_mode_id = SyncConst.CONST_NO_SYNC
+		self.update_cache = Queue.Queue()
+		self.cache_len = 0
 		self.sync_nosync = NoSync()
+		self.mid2smode = {
+			SyncConst.CONST_NO_SYNC: self.sync_nosync,
+		}
 		self.register_msg()
 
 	def register_msg(self):
@@ -53,3 +60,20 @@ class ServerManger(object):
 				login.header_decode(ret1[1])
 				print 'login_id is ', login.player_id
 				conn.send_dat(send_bytes)
+
+	# conn ,player_id , pos_x , pos_y...
+	def push_data(self, info):
+		self.cache_len += 1
+		self.update_cache.put(info)
+
+	def pop_data(self):
+		if self.cache_len == 0:
+			return None
+		self.cache_len -= 1
+		self.update_cache.get()
+
+	def tick(self):
+		sync_model = self.mid2smode.get(self.sync_mode_id)
+		if not sync_model:
+			return
+		sync_model.tick()
