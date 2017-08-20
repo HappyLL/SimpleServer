@@ -78,7 +78,7 @@ class Player(object):
 
 	def _pos_changed(self, bytes):
 		from system.proto.header.MPosSCHeader import MPosSCHeader
-		pos_header = MPosSCHeader(HeaderConst.HEADER_LOGIN_MSG_ID)
+		pos_header = MPosSCHeader(HeaderConst.HEADER_POS_MSG_ID)
 		pos_header.header_decode(bytes)
 		if pos_header.player_id != self.player_id:
 			print '[Player][_pos_changed] player id not equal %d, %d'%(pos_header.player_id, self.player_id)
@@ -87,6 +87,7 @@ class Player(object):
 		self._pos_y = pos_header.pos_y
 		self._v_x = pos_header.v_x
 		self._v_y = pos_header.v_y
+		print 'pos_change ',self
 		info = {
 			'player_id': self.player_id,
 			'pos_x': self.pos_x,

@@ -2,7 +2,6 @@
 
 # 处理协议发给谁
 
-from core.sync.NoSync import NoSync
 from core.sync import SyncConst
 from system.decorator.Singleton import singleton
 from system.event import EventDispatcher
@@ -12,6 +11,7 @@ import Queue
 class ServerManger(object):
 	def __init__(self):
 		self.conns = []
+		from core.sync.NoSync import NoSync
 		self.sync_mode_id = SyncConst.CONST_NO_SYNC
 		self.update_cache = Queue.Queue()
 		self.cache_len = 0
@@ -42,23 +42,16 @@ class ServerManger(object):
 	def destroy(self):
 		self.cancel_msg()
 
-	def send_proto_to_all(self, bytes):
+	def send_proto_to_all(self, data_bytes):
 		print 'conns is ', self.conns
 		for conn in self.conns:
-			conn.send_dat(bytes)
+			send_bytes = data_bytes[:]
+			conn.send_dat(send_bytes)
 
-	def send_proto_target_to_all(self, player_conn, bytes):
+	def send_proto_target_to_all(self, player_conn, data_bytes):
 		for conn in self.conns:
 			if conn != player_conn:
-				send_bytes = bytes[:]
-				print 'send success all is ',conn
-				from system.proto.header.MLoginSCHeader import MLoginSCHeader
-				from system.proto import HeaderConst
-				login = MLoginSCHeader(HeaderConst.HEADER_LOGIN_MSG_ID)
-				from system.proto import Proto
-				ret1, ret = Proto.decode_buffer(bytes, len(bytes))
-				login.header_decode(ret1[1])
-				print 'login_id is ', login.player_id
+				send_bytes = data_bytes[:]
 				conn.send_dat(send_bytes)
 
 	# conn ,player_id , pos_x , pos_y...
@@ -70,7 +63,7 @@ class ServerManger(object):
 		if self.cache_len == 0:
 			return None
 		self.cache_len -= 1
-		self.update_cache.get()
+		return self.update_cache.get()
 
 	def tick(self):
 		sync_model = self.mid2smode.get(self.sync_mode_id)
